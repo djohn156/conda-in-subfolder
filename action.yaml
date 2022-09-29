@@ -1,0 +1,42 @@
+name: "Setup Conda"
+description: "Sets up a conda project that is not on the root level of a GitHub repository."
+inputs:
+  path:
+    description: "Path to the conda project within the repository"
+    required: true
+  env-name:
+    description: "Name of the target conda environment"
+    required: true
+  miniconda-version:
+    description: "Version of miniconda to use"
+    required: false
+    default: py39_4.12.0
+  cache-number:
+    description: "Identifier for the cache in case it should be refreshed"
+    required: false
+    default: "0"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup miniconda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: ${{ inputs.env-name }}
+        miniconda-version: ${{ inputs.miniconda-version }}
+    - name: Get Date
+      id: get-date
+      run: echo "::set-output name=today::$(/bin/date -u '+%Y%m%d')"
+      shell: bash
+    - name: Cache Conda env
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.CONDA }}/envs
+        key: conda-${{ runner.os }}--${{ runner.arch }}--${{ steps.get-date.outputs.today }}-${{ hashFiles(format('{0}/env.yml', env.FOLDER )) }}-${{ env.CACHE_NUMBER }}
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: ${{ inputs.cache-number }}
+      id: cached-conda-dependencies
+    - name: Install dependencies for image_analysis
+      if: steps.cached-conda-dependencies.outputs.cache-hit != 'true'
+      run: conda env update -f ${FOLDER}/env.yml
+      shell: bash
