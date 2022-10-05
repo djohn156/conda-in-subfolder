@@ -35,8 +35,11 @@ runs:
       env:
         # Increase this value to reset cache if etc/example-environment.yml has not changed
         CACHE_NUMBER: ${{ inputs.cache-number }}
+        FOLDER: ${{ inputs.path }}
       id: cached-conda-dependencies
     - name: Install dependencies for image_analysis
       if: steps.cached-conda-dependencies.outputs.cache-hit != 'true'
       run: conda env update -f ${FOLDER}/env.yml
       shell: bash
+      env:
+        FOLDER: ${{ inputs.path }}
