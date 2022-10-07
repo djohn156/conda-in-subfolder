@@ -23,7 +23,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup miniconda
-      if: inputs.setup-miniconda == "true"
+      if: inputs.setup-miniconda == 'true'
       uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: ${{ inputs.env-name }}
