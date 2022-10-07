@@ -15,10 +15,15 @@ inputs:
     description: "Identifier for the cache in case it should be refreshed"
     required: false
     default: "0"
+  setup-miniconda:
+    description: "Install miniconda"
+    required: false
+    default: false
 runs:
   using: "composite"
   steps:
     - name: Setup miniconda
+      if: ${{ inputs.setup-miniconda }}
       uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: ${{ inputs.env-name }}
